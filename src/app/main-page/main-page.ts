@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -11,18 +11,19 @@ export class MainPage {
   constructor(private http: HttpClient) {}
   Token = sessionStorage.getItem('access_token');
   //maybe make an interface for this
-  animeList: any[] = [];
-
+  animeList = signal<any[]>([]);
   getList() {
     this.http.get<any>("http://localhost:3000/myanimelist/list", {
       headers: {
         Authorization: `Bearer ${this.Token}`,
       }
     }).subscribe({ 
-      next: (data) => {
-        console.log("anime list", data);
-        this.animeList = data;
-        return this.animeList
+      next: (AnimeData) => {
+        console.log("anime list", AnimeData);
+        this.animeList.set(AnimeData.data);
+        console.log("anime list signal", this.animeList());
+
+
       },
       error: (error) => console.error(error)
   });

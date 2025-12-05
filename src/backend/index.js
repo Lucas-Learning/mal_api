@@ -22,8 +22,6 @@ app.get("/auth/url", async (req,res)=>{
 const codeVerifier = getGenerateCodeVerifier();
 const codeChallenge = codeVerifier
 savedCodeVerifier = codeVerifier;
-console.log("Code Challenge:" + codeChallenge);
-console.log("Code Verifier:" + codeVerifier);
 
 url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientid}&state=${state}&redirect_uri=http://localhost:4200/mal-callback&code_challenge=${codeChallenge}&code_challenge_method=plain`
 res.redirect(url);
