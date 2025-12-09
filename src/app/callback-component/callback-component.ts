@@ -20,7 +20,6 @@ export class CallbackComponent implements OnInit {
       if (code) {
         this.http.post<TokenResponse>("http://localhost:3000/auth/callback", { code,state}).subscribe({
           next: (data) => {
-            console.log("token response", data);
             this.authService.setToken(data.access_token);
             this.router.navigate(['/main-page']);
           },

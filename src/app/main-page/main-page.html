@@ -1,11 +1,22 @@
 <p>Welcome to the Main Page!</p>
 <p>Here you can get the most recent updates and information for anime</p>
-<button (click)="getList()">Get Anime List</button>
-@if (animeList()){
-    <p>Loading your anime list...</p>
-}
+<button (click)="setFilter('all')">Get Your Whole Anime List</button>
+<button (click)="setFilter('completed')">Get Completed Anime</button>
+<button (click)="setFilter('dropped')">Get Dropped Anime</button>
+<button (click)="setFilter('watching')">Get Watching Anime</button>
+<button (click)="setFilter('on_hold')">Get On-Hold Anime</button>
+
 <h2>Your Anime List:</h2>
-@for (list of animeList(); track list){
-<div><img [src]="list.node.main_picture.medium" alt="{{list.node.title}}"/>{{list.node.title}}</div>
-}
+@if (animeList().length !== 0){
+@for (list of animeList(); track list.node.id){
+    <div><img [src]="list.node.main_picture.medium" alt="{{list.node.title}}"/>{{list.node.title}} {{list.list_status.status}}
+    </div>
+@if (list.list_status.score !== 0) {
+    <div>Score: {{list.list_status.score}}</div>
+        }
+    }
+}@else
+{
+    <div>Just a vacuum. There is nothing to see here</div>
+} 
 
