@@ -39,10 +39,10 @@ export class MainPage implements OnInit {
     this.animeList.set(this.fullAnimeList().filter(a => a.list_status.status === filter));
   }
   getInfo(id: number){
-    // if we already have info and it's for the same id, skip fetching
     if (this.animeInfo() && (this.animeInfo() as any).id === id) {
       return;
     }
+    //Sends the id needed for the get request and sends back the data for the anime with that id
     this.http.post<any>("http://localhost:3000/myanimelist/info",{id},{
       headers: {
         Authorization: `Bearer ${this.Token}`
