@@ -1,5 +1,6 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth-service';
 
 @Component({
   selector: 'app-main-page',
@@ -8,18 +9,24 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './main-page.css',
 })
 export class MainPage implements OnInit {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
   Token = sessionStorage.getItem('access_token');
+
   //maybe make an interface for this
   animeList = signal<any[]>([]);
   fullAnimeList = signal<any[]>([]);
   animeInfo = signal<any | null>(null);
   currentFilter = signal<'all' | 'completed' | 'watching' | 'on_hold' | 'dropped' | 'plan_to_watch'>('all');
-
   ngOnInit() {
+    const sessionId = this.authService.getSessionId();
+
+    if (!sessionId) {
+    console.error("No session ID found!");
+    return;
+    }
     this.http.get<any>("http://localhost:3000/myanimelist/list", {
       headers: {
-        Authorization: `Bearer ${this.Token}`,
+        'x-session-id': sessionId
       }
     }).subscribe({ 
       next: (AnimeData) => {
@@ -42,10 +49,16 @@ export class MainPage implements OnInit {
     if (this.animeInfo() && (this.animeInfo() as any).id === id) {
       return;
     }
+    const sessionId = this.authService.getSessionId();
+
+    if (!sessionId) {
+    console.error("No session ID found!");
+    return;
+    }
     //Sends the id needed for the get request and sends back the data for the anime with that id
     this.http.post<any>("http://localhost:3000/myanimelist/info",{id},{
       headers: {
-        Authorization: `Bearer ${this.Token}`
+        'x-session-id': sessionId
       }
     }).subscribe({
       next: (data) =>{

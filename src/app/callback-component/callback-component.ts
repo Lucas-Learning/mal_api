@@ -18,9 +18,9 @@ export class CallbackComponent implements OnInit {
       const code = params['code'];
       const state = params['state'];
       if (code) {
-        this.http.post<TokenResponse>("http://localhost:3000/auth/callback", { code,state}).subscribe({
+        this.http.post<{ sessionId: string }>("http://localhost:3000/auth/callback", { code,state}).subscribe({
           next: (data) => {
-            this.authService.setToken(data.access_token);
+            this.authService.setSessionId(data.sessionId);
             this.router.navigate(['/main-page']);
           },
           error: (error) => console.error(error)

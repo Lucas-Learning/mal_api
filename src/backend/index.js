@@ -69,10 +69,16 @@ try {
 });
 
 app.get("/myanimelist/list", async (req,res) =>{
-    const accessToken = req.headers.authorization?.split(" ")[1];
-    if (!accessToken) {
-        return res.status(401).json({ error: "Access token missing" });
+    const sessionId = req.headers['x-session-id'];
+
+    if (!sessionId) {
+        return res.status(401).json({ error: "Session id missing" });
     }
+    const session = sessions.get(sessionId);
+    if (!session){
+        return res.status(401).json({error: "Invalid or expired session"})
+    }
+    const accessToken = session.access_token;
     try{
         const response = await fetch("https://api.myanimelist.net/v2/users/@me/animelist?fields=list_status&offset=0&limit=1000", {
             method: "GET",

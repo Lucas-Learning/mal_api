@@ -4,10 +4,10 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class AuthService {
-  setToken(token: string) {
-    sessionStorage.setItem('access_token', token);
+  setSessionId(sessionId: string) {
+    sessionStorage.setItem('session_id', sessionId);
   }
-  getToken(): string | null {
-    return sessionStorage.getItem('access_token');
+  getSessionId(): string | null {
+    return sessionStorage.getItem('session_id');
   }
 }
