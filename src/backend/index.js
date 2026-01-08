@@ -4,15 +4,13 @@ import 'dotenv/config';
 import cors from 'cors';
 const app = express();
 const port = 3000;
-let state = "";
-let savedCodeVerifier = "";
 import {getGenerateCodeVerifier,getCodeChallenge} from './auth.js';
 import { URLSearchParams } from 'url';
-import { error } from 'console';
+import { error, log } from 'console';
 const clientid = process.env.CLIENT_ID;
 const clientsecret = process.env.CLIENT_SECRET;
-
-let url = "";
+const sessions = new Map();
+const loginStates = new Map();
 app.use(cors());
 app.use(express.json());
 
@@ -21,25 +19,29 @@ app.use(express.json());
 });*/
 
 app.get("/auth/url", async (req,res)=>{
-state = crypto.randomBytes(16).toString("hex");
+const state = crypto.randomBytes(16).toString("hex");
 const codeVerifier = getGenerateCodeVerifier();
 const codeChallenge = codeVerifier
-savedCodeVerifier = codeVerifier;
+//savedCodeVerifier = codeVerifier;
 
-url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientid}&state=${state}&redirect_uri=http://localhost:4200/mal-callback&code_challenge=${codeChallenge}&code_challenge_method=plain`
+loginStates.set(state, codeVerifier)
+let url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientid}&state=${state}&redirect_uri=http://localhost:4200/mal-callback&code_challenge=${codeChallenge}&code_challenge_method=plain`
 res.redirect(url);
 });
 
 app.post("/auth/callback", async (req,res) =>{
 const { code, state: returnedState } =  req.body;
-if ( returnedState !== state ) {
+const codeVerifier = loginStates.get(returnedState);
+if (!codeVerifier) {
     return res.status(400).send("Invalid state");
 }
+loginStates.delete(returnedState);
+
 const params = new URLSearchParams({
     client_id: clientid,
     client_secret: clientsecret,
     code: code,
-    code_verifier: savedCodeVerifier,
+    code_verifier: codeVerifier,
     grant_type: "authorization_code",
     redirect_uri: "http://localhost:4200/mal-callback",
    
@@ -56,8 +58,11 @@ try {
         const errorData = await response.json();
         return res.status(response.status).json({ error: "Token request failed", details: errorData });
     }
+    const sessionId = crypto.randomUUID();
     const data = await response.json();
-    res.json(data);
+    sessions.set(sessionId, data);
+    res.json({sessionId});
+    console.log(sessionId);
 } catch (error) {
     res.status(500).json({ error: "Failed to fetch token" });
 }
@@ -86,6 +91,7 @@ app.get("/myanimelist/list", async (req,res) =>{
 app.post("/myanimelist/info", async (req,res) =>{
     const { id } = req.body;
     const accessToken = req.headers.authorization?.split(" ")[1];
+    
     if (!id){
         return res.status(400).json({error: "Anime id missing"});
     }
