@@ -1,5 +1,4 @@
 <div class="main-page">
-
 <div class="text">
 <h1>Welcome!</h1>
 <h2>Here you can get the most recent updates and information for anime</h2>
@@ -12,6 +11,7 @@
 <button (click)="setFilter('watching')">Get Watching</button>
 <button (click)="setFilter('on_hold')">Get On-Hold</button>
 <button (click)="setFilter('plan_to_watch')">Get Plan to Watch</button>
+<button (click)="logOut()">Log Out</button>
 </div>
 <div class="anime-list">
 @if (animeList().length !== 0){

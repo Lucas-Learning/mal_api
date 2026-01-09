@@ -124,6 +124,68 @@ app.post("/myanimelist/info", async (req,res) =>{
         res.status(500).json({ error: "Failed to fetch anime list" });
     }
 })
+app.post("/myanimelist/update-status", async (req,res) =>{
+    const { id } = req.body;
+    const sessionId = req.headers['x-session-id'];
+      if (!sessionId) {
+        return res.status(401).json({ error: "Session id missing" });
+    }
+    
+    if (!id){
+        return res.status(400).json({error: "Anime id missing"});
+    }
+    const session = sessions.get(sessionId);
+    if (!session){
+        return res.status(401).json({error: "Invalid or expired session"})
+    }
+    const accessToken = session.access_token;
+    try{
+        const response = await fetch(`https://api.myanimelist.net/v2/anime/${id}/my_list_status`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                status: "plan_to_watch"
+            })
+        });
+        const data = await response.json();
+        res.json(data);
+    }
+    catch (error){
+        res.status(500).json({ error: "Failed to update anime status" });
+    }
+});
+
+app.delete("/myanimelist/remove/:id", async (req,res) =>{
+    const { id } = req.params;
+    const sessionId = req.headers['x-session-id'];
+    if (!sessionId) {
+        return res.status(401).json("Session id missing");
+    }
+     if (!id){
+        return res.status(400).json({error: "Anime id missing"});
+    }
+    const session = sessions.get(sessionId);
+    if (!session){
+        return res.status(401).json({error: "Invalid or expired session"})
+    }
+    const accessToken = session.access_token;
+    
+    try{
+        const response = await fetch(`https://api.myanimelist.net/v2/anime/${id}/my_list_status`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+            },
+        });
+            const data = await response.json();
+            res.status(response.status).json({ details: data });
+    } catch (error){
+        res.status(500).json({ error: "Failed to remove anime" });
+    }
+})
 
 app.listen(port, () => {
     console.log(`Backend server is running at http://localhost:${port}`);

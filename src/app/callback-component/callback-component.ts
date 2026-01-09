@@ -15,13 +15,15 @@ export class CallbackComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const code = params['code'];
       const state = params['state'];
+        this.router.navigate([], { replaceUrl: true });
       if (code) {
         this.http.post<{ sessionId: string }>("http://localhost:3000/auth/callback", {code,state}).subscribe({
           next: (data) => {
             this.authService.setSessionId(data.sessionId);
-            this.router.navigate(['/main-page']);
+            this.router.navigate(['/main-page'], { replaceUrl: true });
           },
-          error: (error) => console.error(error)
+          error: (error) => {  this.router.navigate(['/home'], { replaceUrl: true}), console.error(error)}
+        
         })
       }
     })

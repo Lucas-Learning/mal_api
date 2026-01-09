@@ -1,10 +1,30 @@
 <div class="modal" (click)="closeModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <!-- MAKE A LOAD TEMPLATE PLEASE-->
-        <h2>Anime Details</h2>
-        <p>Title: {{mainPage.animeInfo().title}}</p>
-        <img [src]="mainPage.animeInfo().pictures[1].medium" alt="Anime Image"/>   
-        <p>Media: {{mainPage.animeInfo().media_type}}</p>
+        <h2>{{mainPage.animeInfo().title}}</h2>
+        <img [src]="mainPage.animeInfo().pictures[0].medium" class="AnimeCard"/>
+        <div>
+        <button class="infoBtn" (click)="mainPage.removeFromList(mainPage.animeInfo().id)">Remove from list</button>
+        </div>
+        <p>{{mainPage.animeInfo().synopsis}}</p>
+        <span><h2>Rank: #{{mainPage.animeInfo().rank}} Popularity: #{{mainPage.animeInfo().popularity}}</h2></span> 
+        <h3>Media: {{mainPage.animeInfo().media_type}}</h3>
+        <h3>Studio: {{mainPage.animeInfo().studios[0].name}}</h3>
+        <h3>Genres:
+        @for (item of mainPage.animeInfo().genres; track item.id ){
+            <span>{{item.name}}, </span>
+        }
+    </h3>
+        <h3>Recommendations</h3>
+        @for (item of mainPage.animeInfo().recommendations; track item.node.id){
+            <div class="Recommendations">
+                <h2>{{item.node.title}}</h2>
+                <img [src]="item.node.main_picture.medium"  class="AnimeCardSmall"/>
+            </div>
+            <button class="infoBtn" (click)="mainPage.addToWatchLater(item.node.id)">Add to plan to watch</button>
+            
+        }
+        <br>
         <button (click)="closeModal()">Close</button>
     </div>
 </div>
