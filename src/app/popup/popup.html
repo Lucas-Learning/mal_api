@@ -1,0 +1,9 @@
+<div class="popup-overlay" (click)="closePopup()">
+  <div class="popup-content" (click)="$event.stopPropagation()">
+	<h3>@if(modal.isPopupVisible){
+        <span>Action completed successfully!</span>
+    }
+    </h3>
+	<button (click)="closePopup()" class="infoBtn">Close</button>
+  </div>
+</div>

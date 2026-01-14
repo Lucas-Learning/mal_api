@@ -1,7 +1,9 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth-service';
 import { Modal } from "../modal/modal";
+import { filter } from 'rxjs';
+
 
 @Component({
   selector: 'app-main-page',
@@ -14,7 +16,10 @@ export class MainPage implements OnInit {
   Token = sessionStorage.getItem('access_token');
 
   //maybe make an interface for this
+  statusUpdating = signal<string>('');
   animeList = signal<any[]>([]);
+  idCheck = signal<number>(0);
+  deletedId = signal<number>(0);
   fullAnimeList = signal<any[]>([]);
   animeInfo = signal<any | null>(null);
   currentFilter = signal<'all' | 'completed' | 'watching' | 'on_hold' | 'dropped' | 'plan_to_watch'>('all');
@@ -36,7 +41,8 @@ export class MainPage implements OnInit {
       next: (AnimeData) => {
         this.fullAnimeList.set(AnimeData.data);
         this.setFilter('all');
-      },
+        console.log("Anime list", this.fullAnimeList());
+      },  
       error: (error) => console.error(error)
   });
   }
@@ -47,12 +53,18 @@ export class MainPage implements OnInit {
   hideModal() {
 	this.isModalVisible = false;
   }
+
   removeFromList(id: number){
     const sessionId = this.authService.getSessionId();
     if (!sessionId) {
     console.error("No session ID found!");
     return;
     }
+    if (id === this.deletedId()) {
+    console.log("Same ID");
+    return;
+    }
+    this.deletedId.set(id);
     this.http.delete<any>(`http://localhost:3000/myanimelist/remove/${id}`,{
       params: { id: id.toString() },
       headers: {
@@ -118,19 +130,66 @@ export class MainPage implements OnInit {
       error: (error) => console.error(error)
     })
   }
-  addToWatchLater(id: number){
+  updateWatchingStatus(id: number, status: string, score: number, numWatchedEpisodes: number){
     const sessionId = this.authService.getSessionId();
-
     if (!sessionId) {
     console.error("No session ID found!");
     return;
     }
+      if (status === 'completed' ){
+        numWatchedEpisodes = this.animeInfo().num_episodes;  
+      }
+      else {
+        numWatchedEpisodes;
+      }
+      console.log(this.animeInfo());
+    
+    if(!id){
+      console.error("No id provided!", id);
+      return;
+    }
+    status = this.statusUpdating();
+     this.http.post<any>("http://localhost:3000/myanimelist/update-status",{id,filter:status,score:score,num_watched_episodes:numWatchedEpisodes},{
+      headers: {
+        'x-session-id': sessionId
+      }
+    }).subscribe({
+      next: (data) =>{
+      console.log("Updated status", data);
+      console.log("Num watched episodes", numWatchedEpisodes);
+      //Refreshes the anime list to show the updated status
+       this.http.get<any>("http://localhost:3000/myanimelist/list", {
+      headers: {
+        'x-session-id': sessionId
+      }
+    }).subscribe({ 
+      next: (AnimeData) => {
+        this.fullAnimeList.set(AnimeData.data);
+        this.setFilter('all');
+      },
+      error: (error) => console.error(error)
+  });
+      },
+      error: (error) => console.error(error)
+    })
+  }
+  addToWatchLater(id: number){
+    const sessionId = this.authService.getSessionId();
+    if (!sessionId) {
+    console.error("No session ID found!");
+    return;
+    }
+    /*if (id === this.idCheck()) {
+    console.log("Same ID");
+    return;
+    }
+    this.idCheck.set(id);*/
 
     if(!id){
       console.error("No id provided!", id);
       return;
     }
-    this.http.post<any>("http://localhost:3000/myanimelist/update-status",{id},{
+    this.http.post<any>("http://localhost:3000/myanimelist/update-status",{id,filter:"plan_to_watch",score:0,num_watched_episodes:0},{
       headers: {
         'x-session-id': sessionId
       }

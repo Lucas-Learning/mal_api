@@ -4,7 +4,45 @@
         <h2>{{mainPage.animeInfo().title}}</h2>
         <img [src]="mainPage.animeInfo().pictures[0].medium" class="AnimeCard"/>
         <div>
-        <button class="infoBtn" (click)="mainPage.removeFromList(mainPage.animeInfo().id)">Remove from list</button>
+        
+        <h2>Status: @for (item of mainPage.fullAnimeList(); track item.node.id ){
+            @if (item.list_status.status == "plan_to_watch" && item.node.id == mainPage.animeInfo().id){
+                plan to watch
+            }
+            @else if (item.list_status.status == "on_hold" && item.node.id == mainPage.animeInfo().id) {
+                on hold
+            }
+            @else if (item.node.id == mainPage.animeInfo().id) {
+                {{item.list_status.status}}
+            }
+        }
+        </h2>
+        <h2>
+         Score: @for (item of mainPage.fullAnimeList(); track item.node.id){
+            @if (item.node.id == mainPage.animeInfo().id){
+                @if (item.list_status.score == 0){
+                    N/A
+                }
+                @else{
+                    {{item.list_status.score}}
+                }
+            }
+         }
+        </h2>
+        
+        @if(isScorePopupVisible ){
+        <app-score-popup (submitScore)="mainPage.updateWatchingStatus(mainPage.animeInfo().id, mainPage.statusUpdating(), $event, 0)" (close)="hideScorePopup()"></app-score-popup>
+        }
+
+        <button class="infoBtn" (click)="showScorePopup('completed')">Completed</button>
+        <button class="infoBtn" (click)="showScorePopup('watching')">Watching</button>
+        <button class="infoBtn" (click)="showScorePopup('on_hold')">On-Hold</button>
+        <button class="infoBtn" (click)="showScorePopup('dropped')">Dropped</button>
+        <button class="infoBtn" (click)="mainPage.removeFromList(mainPage.animeInfo().id)" (click)="showPopup()">Remove from list</button>
+        
+        @if (isPopupVisible){
+        <app-popup (close)="hidePopup()"></app-popup>
+        }
         </div>
         <p>{{mainPage.animeInfo().synopsis}}</p>
         <span><h2>Rank: #{{mainPage.animeInfo().rank}} Popularity: #{{mainPage.animeInfo().popularity}}</h2></span> 
@@ -21,8 +59,10 @@
                 <h2>{{item.node.title}}</h2>
                 <img [src]="item.node.main_picture.medium"  class="AnimeCardSmall"/>
             </div>
-            <button class="infoBtn" (click)="mainPage.addToWatchLater(item.node.id)">Add to plan to watch</button>
-            
+            <button class="infoBtn" (click)="mainPage.addToWatchLater(item.node.id)" (click)="showPopup()">Add to plan to watch</button>
+            @if (isPopupVisible){
+    <app-popup (close)="hidePopup()"></app-popup>
+            }
         }
         <br>
         <button (click)="closeModal()">Close</button>

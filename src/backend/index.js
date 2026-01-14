@@ -125,7 +125,7 @@ app.post("/myanimelist/info", async (req,res) =>{
     }
 })
 app.post("/myanimelist/update-status", async (req,res) =>{
-    const { id } = req.body;
+    const { id, filter, score, num_watched_episodes } = req.body;
     const sessionId = req.headers['x-session-id'];
       if (!sessionId) {
         return res.status(401).json({ error: "Session id missing" });
@@ -147,9 +147,13 @@ app.post("/myanimelist/update-status", async (req,res) =>{
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-                status: "plan_to_watch"
+                status: filter,
+                score: score,
+                num_watched_episodes: num_watched_episodes
             })
+            
         });
+        console.log(score);
         const data = await response.json();
         res.json(data);
     }

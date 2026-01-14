@@ -27,6 +27,7 @@ overflow-y: auto;
     margin: 10px;
     display: inline-block;
 }
+
 .modal-content p{
     margin: 15px;
     line-height: 1.5;
