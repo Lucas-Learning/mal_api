@@ -106,6 +106,7 @@ export class MainPage implements OnInit {
     const cached = this.animeCache()[id];
     if (cached) {
       this.animeInfo.set(cached);
+      this.showModal();
       return;
     }
     
@@ -133,6 +134,7 @@ export class MainPage implements OnInit {
       },
       error: (error) => console.error(error)
     })
+    this.showModal();
   }
   updateWatchingStatus(id: number, status: string, score: number, numWatchedEpisodes: number){
     const sessionId = this.authService.getSessionId();

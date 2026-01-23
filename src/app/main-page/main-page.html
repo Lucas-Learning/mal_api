@@ -1,4 +1,4 @@
-<div class="main-page">
+<div class="main-page" [class.modal-open]="isModalVisible">
 <div class="text">
 </div>
 <h1 class="ListTitle">Your Anime List</h1>
@@ -12,12 +12,8 @@
 <button  (click)="logOut()">Log Out</button>
 </div>
 <div class="anime-list">
-@if (animeList().length !== 0){
-     @if (isModalVisible){
-    <app-modal (close)="hideModal()"></app-modal>
-    }
 @for (list of animeList(); track list.node.id){
-    <div class="AnimeCard" (click)="getInfo(list.node.id)" (click)="showModal()"><img [src]="list.node.main_picture.medium"/><div class="AnimeInfo"><p>{{list.node.title}}</p> <p>Status:
+    <div class="AnimeCard" (click)="getInfo(list.node.id)"><img [src]="list.node.main_picture.medium"/><div class="AnimeInfo"><p>{{list.node.title}}</p> <p>Status:
         @if (list.list_status.status == "plan_to_watch"){
             plan to watch
         }
@@ -39,6 +35,11 @@
     }
     </div>
 </div>
+
+    }
+    @if (animeList().length !== 0){
+     @if (isModalVisible){
+    <app-modal (close)="hideModal()"></app-modal>
     }
 }@else
 {

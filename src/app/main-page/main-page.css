@@ -61,7 +61,7 @@
 }
 
 .AnimeCard {
-    transition: 0.3s;
+    transition: 0.3s ease, box-shadow 0.2s ease;
     border: 2px solid #ffffff;
     border-radius: 8px;
     padding: 10px;
@@ -71,10 +71,17 @@
     background-color: #393b38;
     transition: 0.2s;
 }
+.main-page.modal-open .AnimeCard {
+  pointer-events: none;
+}
 .AnimeCard:hover {
+    transform: translateY(-0.5em);
     box-shadow: #ffffff 0px 0px 10px;
-    transition: 0.3s;
-    margin-top: -7px;
+    
+}
+.main-page.modal-open .AnimeCard:hover{
+    transform: none;
+    box-shadow: none;
 }
 .AnimeCard img {
     border-radius: 8px;
