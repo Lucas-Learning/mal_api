@@ -15,7 +15,7 @@ export class MainPage implements OnInit {
   constructor(private http: HttpClient, private authService: AuthService) {}
   Token = sessionStorage.getItem('access_token');
 
-  //maybe make an interface for this
+  //Signals
   statusUpdating = signal<string>('');
   animeList = signal<any[]>([]);
   idCheck = signal<number>(0);
@@ -28,7 +28,7 @@ export class MainPage implements OnInit {
 
   ngOnInit() {
     const sessionId = this.authService.getSessionId();
-
+    
     if (!sessionId) {
     console.error("No session ID found!");
     return;
@@ -41,7 +41,6 @@ export class MainPage implements OnInit {
       next: (AnimeData) => {
         this.fullAnimeList.set(AnimeData.data);
         this.setFilter('all');
-        console.log("Anime list", this.fullAnimeList());
       },  
       error: (error) => console.error(error)
   });
@@ -49,7 +48,6 @@ export class MainPage implements OnInit {
   showModal() {
 	this.isModalVisible = true;
   }
-
   hideModal() {
 	this.isModalVisible = false;
   }
@@ -61,7 +59,6 @@ export class MainPage implements OnInit {
     return;
     }
     if (id === this.deletedId()) {
-    console.log("Same ID");
     return;
     }
     this.deletedId.set(id);
@@ -71,17 +68,16 @@ export class MainPage implements OnInit {
         'x-session-id': sessionId
       }
     }).subscribe({
-      next: (data) =>{
-        console.log("Removed from list", data);
+      next: () =>{
         //Refreshes the anime list to show the updated status
         this.http.get<any>("http://localhost:3000/myanimelist/list", {
       headers: {
         'x-session-id': sessionId
       }
-    }).subscribe({ 
-      next: (AnimeData) => {
-        this.fullAnimeList.set(AnimeData.data);
-        this.setFilter('all');
+      }).subscribe({ 
+        next: (AnimeData) => {
+          this.fullAnimeList.set(AnimeData.data);
+          this.setFilter('all');
       },
       error: (error) => console.error(error)
   });
@@ -91,9 +87,9 @@ export class MainPage implements OnInit {
   onSearch(event: Event){
     const input = event.target as HTMLInputElement;
     const filter = input.value.toLowerCase();
-    this.animeList.set(this.fullAnimeList().filter(a => a.node.title.toLowerCase().includes(filter)));
+    this.animeList.set(this.fullAnimeList().filter(anime => anime.node.title.toLowerCase().includes(filter)));
   }
-  
+
   logOut(){
     sessionStorage.removeItem('session_id');
     sessionStorage.removeItem('access_token');
@@ -136,7 +132,6 @@ export class MainPage implements OnInit {
         if(!this.animeInfo().studios[0]){
           this.animeInfo().studios[0] = {name: 'N/A'};
         }
-        console.log("Anime info", this.animeInfo());
       },
       error: (error) => console.error(error)
     })
@@ -154,8 +149,6 @@ export class MainPage implements OnInit {
       else {
         numWatchedEpisodes;
       }
-      console.log(this.animeInfo());
-    
     if(!id){
       console.error("No id provided!", id);
       return;
@@ -166,9 +159,7 @@ export class MainPage implements OnInit {
         'x-session-id': sessionId
       }
     }).subscribe({
-      next: (data) =>{
-      console.log("Updated status", data);
-      console.log("Num watched episodes", numWatchedEpisodes);
+      next: () =>{
       //Refreshes the anime list to show the updated status
        this.http.get<any>("http://localhost:3000/myanimelist/list", {
       headers: {
@@ -194,12 +185,6 @@ export class MainPage implements OnInit {
     console.error("No session ID found!");
     return;
     }
-    /*if (id === this.idCheck()) {
-    console.log("Same ID");
-    return;
-    }
-    this.idCheck.set(id);*/
-
     if(!id){
       console.error("No id provided!", id);
       return;
@@ -209,23 +194,22 @@ export class MainPage implements OnInit {
         'x-session-id': sessionId
       }
     }).subscribe({
-      next: (data) =>{
-      console.log("Added to plan to watch", data);
+      next: () => {
       
       //Refreshes the anime list to show the updated status
        this.http.get<any>("http://localhost:3000/myanimelist/list", {
       headers: {
         'x-session-id': sessionId
       }
-    }).subscribe({ 
-      next: (AnimeData) => {
+      }).subscribe({ 
+        next: (AnimeData) => {
         this.fullAnimeList.set(AnimeData.data);
         this.setFilter('all');
       },
       error: (error) => console.error(error)
-  });
+      });
       },
       error: (error) => console.error(error)
-    })
+    });
   }
 }

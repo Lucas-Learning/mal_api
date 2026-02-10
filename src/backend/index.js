@@ -4,9 +4,9 @@ import 'dotenv/config';
 import cors from 'cors';
 const app = express();
 const port = 3000;
-import {getGenerateCodeVerifier,getCodeChallenge} from './auth.js';
+import {getGenerateCodeVerifier} from './auth.js';
 import { URLSearchParams } from 'url';
-import { error, log } from 'console';
+
 const clientid = process.env.CLIENT_ID;
 const clientsecret = process.env.CLIENT_SECRET;
 const sessions = new Map();
@@ -62,7 +62,6 @@ try {
     const data = await response.json();
     sessions.set(sessionId, data);
     res.json({sessionId});
-    console.log(sessionId);
 } catch (error) {
     res.status(500).json({ error: "Failed to fetch token" });
 }
